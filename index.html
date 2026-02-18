@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0B0F17" />
+  <title>MATO – Öffne Gerät</title>
+  <meta name="description" content="Öffnet MATO direkt am passenden Gerät und zeigt das Ranking." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="MATO – Gerät öffnen" />
+  <meta property="og:description" content="Direkt zum Geräte-Ranking in der MATO App." />
+  <meta property="og:type" content="website" />
+
+  <style>
+    :root{
+      --bg:#070A12;
+      --card:rgba(255,255,255,.06);
+      --card2:rgba(255,255,255,.09);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.68);
+      --accent:#7C3AED;
+      --accent2:#22C55E;
+      --danger:#EF4444;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,.28), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 700px at 50% 120%, rgba(59,130,246,.14), transparent 60%),
+        var(--bg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 16px;
+    }
+    .wrap{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
+    }
+    @media (max-width: 900px){
+      .wrap{grid-template-columns:1fr; }
+    }
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(500px 160px at 30% 0%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(500px 160px at 70% 0%, rgba(34,197,94,.22), transparent 60%);
+      pointer-events:none;
+      opacity:.65;
+    }
+    .inner{ position:relative; padding:22px; }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.3px;
+      margin-bottom:14px;
+    }
+    .logo{
+      width:34px;height:34px;border-radius:10px;
+      background: linear-gradient(135deg, rgba(124,58,237,.9), rgba(34,197,94,.75));
+      box-shadow: 0 10px 28px rgba(124,58,237,.24);
+      border:1px solid rgba(255,255,255,.16);
+    }
+    h1{ margin:8px 0 8px; font-size:32px; line-height:1.05; }
+    p{ margin:0; color:var(--muted); line-height:1.5; }
+    .device{
+      margin-top:16px;
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .device code{
+      font-family:var(--mono);
+      font-size:14px;
+      color:rgba(255,255,255,.88);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      padding:8px 10px;
+      border-radius:12px;
+      user-select:all;
+      word-break:break-all;
+    }
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.78);
+      white-space:nowrap;
+    }
+    .actions{
+      display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;
+    }
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:650;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      min-height:46px;
+      text-decoration:none;
+    }
+    .btn:hover{ background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.20); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.85), rgba(34,197,94,.70));
+      border-color:rgba(255,255,255,.18);
+    }
+    .btn.primary:hover{ filter: brightness(1.04); }
+    .btn.secondary{
+      background:rgba(255,255,255,.07);
+    }
+    .btn.danger{
+      background:rgba(239,68,68,.10);
+      border-color:rgba(239,68,68,.35);
+    }
+    .small{
+      font-size:12px; color:rgba(255,255,255,.62); margin-top:10px;
+    }
+    .side .card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:16px;
+      margin-bottom:12px;
+    }
+    .kpi{
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-top:10px;
+    }
+    .kpi .item{
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:12px;
+    }
+    .kpi .item .t{ font-size:12px; color:rgba(255,255,255,.62); }
+    .kpi .item .v{ margin-top:6px; font-size:16px; font-weight:700; }
+    .status{
+      display:flex; align-items:center; gap:10px;
+      margin-top:14px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color:rgba(255,255,255,.78);
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: rgba(255,255,255,.35);
+      box-shadow:0 0 0 6px rgba(255,255,255,.06);
+    }
+    .dot.ok{ background: var(--accent2); box-shadow:0 0 0 6px rgba(34,197,94,.12); }
+    .dot.warn{ background: #F59E0B; box-shadow:0 0 0 6px rgba(245,158,11,.12); }
+    .dot.bad{ background: var(--danger); box-shadow:0 0 0 6px rgba(239,68,68,.12); }
+    .footer{
+      margin-top:14px;
+      font-size:12px;
+      color:rgba(255,255,255,.55);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- Main -->
+    <div class="panel">
+      <div class="inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>MATO</div>
+          <div class="badge" id="envBadge">Deep Link</div>
+        </div>
+
+        <h1>Gerät wird geöffnet…</h1>
+        <p>
+          Wenn die App installiert ist, springst du direkt zum Geräte-Ranking.
+          Falls nicht, kannst du sie im Play Store installieren.
+        </p>
+
+        <div class="device">
+          <div>
+            <div style="font-size:12px;color:rgba(255,255,255,.62);margin-bottom:6px;">Device ID</div>
+            <code id="deviceId">—</code>
+          </div>
+          <button class="btn secondary" id="copyBtn" type="button">Kopieren</button>
+        </div>
+
+        <div class="actions">
+          <a class="btn primary" id="openAppBtn" href="#">In App öffnen</a>
+          <a class="btn" id="playBtn" href="#" rel="noopener">Play Store</a>
+          <a class="btn danger" id="reportBtn" href="#" rel="noopener">QR passt nicht?</a>
+        </div>
+
+        <div class="status" id="statusBox">
+          <span class="dot warn" id="statusDot"></span>
+          <div id="statusText">Versuche, die App zu öffnen…</div>
+        </div>
+
+        <div class="small">
+          Tipp: Wenn dein Browser “In App öffnen” blockt, tippe den Button manuell an.
+        </div>
+
+        <div class="footer">
+          © <span id="year"></span> MATO · mato.app
+        </div>
+      </div>
+    </div>
+
+    <!-- Side -->
+    <div class="side">
+      <div class="panel">
+        <div class="inner">
+          <div class="card">
+            <div style="font-weight:750; font-size:14px;">Was dich erwartet</div>
+            <div style="margin-top:8px; color:rgba(255,255,255,.68); line-height:1.45;">
+              Highscore-Rangliste direkt am Gerät, PR-Tracking und Gym-Community-Rankings.
+            </div>
+
+            <div class="kpi">
+              <div class="item">
+                <div class="t">Tabs</div>
+                <div class="v">Strength · Volume</div>
+              </div>
+              <div class="item">
+                <div class="t">Ranking</div>
+                <div class="v">Top 10 + dein Rang</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-weight:750; font-size:14px;">Problemlösung</div>
+            <div style="margin-top:8px; color:rgba(255,255,255,.68); line-height:1.45;">
+              Wenn der QR noch nicht angelegt ist, kannst du ihn in der App erstellen und das Gerät direkt
+              im Gym registrieren.
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div style="font-weight:750; font-size:14px;">Hinweis</div>
+            <div style="margin-top:8px; color:rgba(255,255,255,.68); line-height:1.45;">
+              Für automatisches Öffnen ohne Umweg muss <code style="font-family:var(--mono)">/.well-known/assetlinks.json</code>
+              korrekt liegen und dein Zertifikat-Fingerprint stimmen.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const yearEl = document.getElementById("year");
+  yearEl.textContent = new Date().getFullYear();
+
+  // === CONFIG ===
+  // Setze hier deine echten Links:
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.tobiasstier.mato";
+  const SUPPORT_URL = "https://mato.app/support"; // optional (oder mailto:)
+  // Deep link scheme (falls du zusätzlich zum App Link einen Custom Scheme nutzt)
+  // Empfohlen als Fallback: mato://d/<id>
+  const CUSTOM_SCHEME_PREFIX = "mato://d/";
+
+  const deviceIdEl = document.getElementById("deviceId");
+  const openAppBtn = document.getElementById("openAppBtn");
+  const playBtn = document.getElementById("playBtn");
+  const reportBtn = document.getElementById("reportBtn");
+  const copyBtn = document.getElementById("copyBtn");
+  const statusText = document.getElementById("statusText");
+  const statusDot = document.getElementById("statusDot");
+  const envBadge = document.getElementById("envBadge");
+
+  playBtn.href = PLAY_STORE_URL;
+  reportBtn.href = SUPPORT_URL;
+
+  function getDeviceIdFromUrl() {
+    // Unterstützt:
+    // 1) /d/<deviceId>
+    // 2) ?id=<deviceId>
+    // 3) /<deviceId> (falls du direkt root rewrite willst)
+    const path = window.location.pathname || "/";
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("id")) return params.get("id").trim();
+
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length >= 2 && parts[0] === "d") return parts[1].trim();
+    if (parts.length === 1) return parts[0].trim();
+    return "";
+  }
+
+  const deviceId = getDeviceIdFromUrl();
+  deviceIdEl.textContent = deviceId || "—";
+
+  function setStatus(kind, text) {
+    statusText.textContent = text;
+    statusDot.className = "dot " + kind;
+  }
+
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent);
+  }
+
+  // Primary: open App Link URL (https://mato.app/d/<id>)
+  // Secondary: open custom scheme (mato://d/<id>)
+  function openApp() {
+    if (!deviceId) {
+      setStatus("bad", "Keine Device ID gefunden. Bitte QR erneut scannen.");
+      return;
+    }
+
+    const applinkUrl = "https://mato.app/d/" + encodeURIComponent(deviceId);
+    const schemeUrl = CUSTOM_SCHEME_PREFIX + encodeURIComponent(deviceId);
+
+    setStatus("warn", "Versuche, die App zu öffnen…");
+
+    // Android: Erst App Link (sollte via autoVerify direkt in App gehen),
+    // aber da wir schon auf der Seite sind, nutzen wir Scheme als 'kick' fallback.
+    // In vielen Browsern funktioniert schemeUrl nur auf User-Interaction (Button click).
+    if (isAndroid()) {
+      envBadge.textContent = "Android";
+      // Versuche per location (best effort)
+      window.location.href = schemeUrl;
+
+      // Fallback nach kurzer Zeit in Play Store, falls App nicht reagiert
+      setTimeout(() => {
+        setStatus("warn", "Falls nichts passiert: App installieren oder Button erneut drücken.");
+      }, 650);
+
+      setTimeout(() => {
+        // Wenn App nicht installiert: Play Store
+        window.location.href = PLAY_STORE_URL;
+      }, 1600);
+    } else {
+      // iOS/Desktop: nur anzeigen + Buttons (oder später iOS universal links)
+      envBadge.textContent = "Browser";
+      setStatus("warn", "Bitte mit „In App öffnen“ fortfahren oder App installieren.");
+    }
+
+    // Button führt immer zur AppLink-URL (wenn Android App Links greifen, öffnet's direkt)
+    openAppBtn.href = applinkUrl;
+  }
+
+  openAppBtn.addEventListener("click", (e) => {
+    // User-gesture erhöht die Chance, dass scheme geöffnet wird
+    e.preventDefault();
+    openApp();
+  });
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(deviceId || "");
+      copyBtn.textContent = "Kopiert";
+      setTimeout(() => (copyBtn.textContent = "Kopieren"), 900);
+    } catch {
+      // Fallback: select text
+      setStatus("warn", "Kopieren nicht möglich – Device ID manuell markieren.");
+    }
+  });
+
+  // Auto-try (best effort). Bei manchen Browsern blockt das – dann Button nutzen.
+  if (deviceId) {
+    setTimeout(() => {
+      // Nur soft hint: wir lassen Auto-Redirect nicht aggressiv auf iOS/desktop
+      if (isAndroid()) openApp();
+      else {
+        envBadge.textContent = "Browser";
+        setStatus("ok", "Link erkannt. Tippe „In App öffnen“.");
+      }
+    }, 250);
+  } else {
+    envBadge.textContent = "Fehler";
+    setStatus("bad", "Ungültiger Link: keine Device ID.");
+    openAppBtn.setAttribute("aria-disabled", "true");
+    openAppBtn.style.opacity = "0.6";
+    openAppBtn.style.pointerEvents = "none";
+  }
+})();
+</script>
+</body>
+</html>
