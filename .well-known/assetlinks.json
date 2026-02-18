@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.tobiasstier.mato",
+    "sha256_cert_fingerprints": ["95:84:91:43:BA:23:74:DE:A6:1B:03:6C:E2:73:D5:0B:A1:FF:41:D3:DB:6E:3B:2E:54:54:C1:9E:87:D1:FE:6E"]
+  }
+}]
